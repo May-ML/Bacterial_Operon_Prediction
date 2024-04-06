@@ -1,0 +1,193 @@
+---
+title: "InfoB528_HW_3"
+author: "Meiheng Liang"
+date: "2024-03-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+setwd(getwd())
+setwd("C:/path/to/the/directory/matrix/stored/")
+
+```
+
+## R Markdown
+
+```{r B_subtilis}
+B_subtilis <- read.table("C:/path/to/the/directory/matrix/stored/B_subtilis_168.ptt", sep="\t", header=TRUE, skip=2)
+B_subtilis <- na.omit(B_subtilis)
+
+# Function to split and convert a single value
+extract_numbers <- function(value) {
+  parts <- unlist(strsplit(value, "\\.."))
+  return(as.numeric(parts))
+}
+
+# Apply the function to the whole column and create two new columns
+numbers <- t(sapply(B_subtilis$Location, extract_numbers))
+B_subtilis$Start <- numbers[, 1]
+B_subtilis$End <- numbers[, 2]
+
+B_subtilis <- na.omit(B_subtilis)
+View(B_subtilis)
+
+# Loop through each row of the df
+B_subtilis_operon=data.frame()
+
+for(i in 1:(nrow(B_subtilis) - 1)) {
+  if(!is.na(B_subtilis$Strand[i]) && !is.na(B_subtilis$Strand[i + 1]) && B_subtilis$Strand[i] == B_subtilis$Strand[i+1]) {
+    if((B_subtilis$Start[i+1]-B_subtilis$End[i] ) < 50) {
+      B_subtilis_operon <- rbind(B_subtilis_operon, B_subtilis[i, ])
+    }
+  }
+}
+
+# Print the results
+print(B_subtilis_operon)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r E_coli}
+E_coli <- read.table("C:/path/to/the/directory/matrix/stored/E_coli_K12_MG1655.ptt", sep="\t", header=TRUE, skip=2)
+E_coli <- na.omit(E_coli)
+
+# Function to split and convert a single value
+extract_numbers <- function(value) {
+  parts <- unlist(strsplit(value, "\\.."))
+  return(as.numeric(parts))
+}
+
+# Apply the function to the whole column and create two new columns
+numbers <- t(sapply(E_coli$Location, extract_numbers))
+E_coli$Start <- numbers[, 1]
+E_coli$End <- numbers[, 2]
+
+E_coli <- na.omit(E_coli)
+View(E_coli)
+# Loop through each row of the df
+E_coli_operon=data.frame()
+
+for(i in 1:(nrow(E_coli) - 1)) {
+  if(!is.na(E_coli$Strand[i]) && !is.na(E_coli$Strand[i + 1]) && E_coli$Strand[i] == E_coli$Strand[i+1]) {
+    if((E_coli$Start[i+1]-E_coli$End[i] ) < 50) {
+      E_coli_operon <- rbind(E_coli_operon, E_coli[i, ])
+    }
+  }
+}
+
+# Print the results
+print(E_coli_operon)
+```
+
+```{r Halobacterium}
+Halobacterium <- read.table("C:/path/to/the/directory/matrix/stored/Halobacterium_NRC1.ptt", sep="\t", header=TRUE, skip=2, fill=TRUE)
+
+Halobacterium <- na.omit(Halobacterium)
+
+# Function to split and convert a single value
+extract_numbers <- function(value) {
+  parts <- unlist(strsplit(value, "\\.."))
+  return(as.numeric(parts))
+}
+
+# Apply the function to the Location column and transpose the result
+numbers <- sapply(Halobacterium$Location, extract_numbers)
+numbers_df <- t(as.data.frame(numbers))
+
+# Check if 'numbers' is created correctly
+# Assign the first and second columns of 'numbers' to Start and End
+Halobacterium$Start <- as.numeric(numbers_df[, 1])
+Halobacterium$End <- as.numeric(numbers_df[, 2])
+# Loop through each row of the df
+Halobacterium_operon=data.frame()
+
+for(i in 1:(nrow(Halobacterium) - 1)) {
+  # Check strands are the same and not NA
+  if(!is.na(Halobacterium$Strand[i]) && !is.na(Halobacterium$Strand[i + 1]) && Halobacterium$Strand[i] == Halobacterium$Strand[i+1]) {
+    # Corrected distance calculation
+    if(!is.na(Halobacterium$Start[i+1]) - !is.na(Halobacterium$End[i]) < 50) {
+      # Append row if conditions are met
+      Halobacterium_operon <- rbind(Halobacterium_operon, Halobacterium[i, ])
+    }
+  }
+}
+
+
+# Print the results
+print(Halobacterium_operon)
+
+```
+
+```{r Synechocystis}
+Synechocystis <- read.table("C:/path/to/the/directory/matrix/stored/Synechocystis_PCC6803_uid159873.ptt", sep="\t", header=TRUE, skip=2, fill=TRUE)
+
+Synechocystis <- na.omit(Synechocystis)
+
+# Function to split and convert a single value
+extract_numbers <- function(value) {
+  parts <- unlist(strsplit(value, "\\.."))
+  return(as.numeric(parts))
+}
+
+# Apply the function to the whole column and create two new columns
+numbers <- t(sapply(Synechocystis$Location, extract_numbers))
+Synechocystis$Start <- numbers[, 1]
+Synechocystis$End <- numbers[, 2]
+
+
+# Loop through each row of the df
+Synechocystis_operon=data.frame()
+for(i in 1:(nrow(Synechocystis) - 1)) {
+  if(!is.na(Synechocystis$Strand[i]) && !is.na(Synechocystis$Strand[i + 1]) && Synechocystis$Strand[i] == Synechocystis$Strand[i+1]) {
+    if((Synechocystis$Start[i+1]-Synechocystis$End[i] ) < 50) {
+      Synechocystis_operon <- rbind(Synechocystis_operon, Synechocystis[i, ])
+    }
+  }
+}
+
+rows_to_remove <- c()  # Initialize an empty vector to store indices of rows to remove
+
+for(i in 1:(nrow(Synechocystis_operon) - 2)) {
+  # If the strands of the current and next two rows are not the same
+  if(Synechocystis_operon$Strand[i] != Synechocystis_operon$Strand[i+1] &&
+     Synechocystis_operon$Strand[i+1] != Synechocystis_operon$Strand[i+2]) {
+    rows_to_remove <- c(rows_to_remove, i)
+  } else {
+    # Else, if the distance between the current and next start/end is >= 50
+    if((Synechocystis_operon$Start[i+1] - Synechocystis_operon$End[i]) >= 50) {
+      rows_to_remove <- c(rows_to_remove, i)
+    }
+  }
+}
+
+# Remove the marked rows
+Synechocystis_operon <- Synechocystis_operon[-rows_to_remove, ]
+# Print the results
+print(Synechocystis_operon)
+```
+
+```{r}
+meta2088090036 <- read.table("C:/path/to/the/directory/matrix/stored/2088090036.gff", sep="\t", header=FALSE)
+
+meta2088090036 <- na.omit(meta2088090036)
+
+
+# Loop through each row of the df
+meta2088090036_operon=data.frame()
+for(i in 1:(nrow(meta2088090036) - 1)) {
+  if(!is.na(meta2088090036$V7[i]) && !is.na(meta2088090036$V7[i + 1]) && meta2088090036$V7[i] == meta2088090036$V7[i+1]) {
+    if((as.numeric(meta2088090036$V4[i+1])-as.numeric(meta2088090036$V5[i]) ) < 50) {
+      meta2088090036_operon <- rbind(meta2088090036_operon, meta2088090036[i, ])
+    }
+  }
+}
+
+
+# Print the results
+print(Synechocystis_operon)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
